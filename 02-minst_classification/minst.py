@@ -1,7 +1,14 @@
 import tensorflow as tf
-from tensorflow.keras import layers, models
-from tensorflow.keras.datasets import mnist
-from tensorflow.keras.utils import to_categorical
+from keras import layers, models
+from keras.src.datasets import mnist
+from keras.src.utils import to_categorical
+
+# Keras 是一个高级神经网络 API，运行在 TensorFlow 之上，提供了快速构建和训练深度学习模型的能力。
+# 常用模块介绍：
+# 1. layers: 提供了各种神经网络层，例如 Dense、Conv2D、MaxPooling2D 等。
+# 2. models: 用于构建和管理模型，包括 Sequential 和 Functional API。
+# 3. datasets: 提供了常用数据集的加载接口，例如 MNIST、CIFAR-10 等。
+# 4. utils: 提供了辅助工具，例如 one-hot 编码、模型保存与加载等。
 
 # 加载MNIST数据集（手写数字数据集）
 (x_train, y_train), (x_test, y_test) = mnist.load_data()
