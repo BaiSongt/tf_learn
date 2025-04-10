@@ -1,7 +1,9 @@
 import tensorflow as tf
 from keras import layers, models
-from keras.src.datasets import mnist
-from keras.src.utils import to_categorical
+# from keras.src.datasets import mnist
+# from keras.src.utils import to_categorical
+from keras.datasets import mnist
+from keras.utils import to_categorical
 
 # Keras 是一个高级神经网络 API，运行在 TensorFlow 之上，提供了快速构建和训练深度学习模型的能力。
 # 常用模块介绍：
