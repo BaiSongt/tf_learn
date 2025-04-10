@@ -9,7 +9,8 @@ os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 # 加载 MNIST 数据集
 # MNIST 是一个手写数字数据集，包含 60000 张训练图片和 10000 张测试图片
 # 每张图片是 28x28 的灰度图像，标签是对应的数字（0-9）
-(x, y), _ = datasets.mnist.load_data()
+# (x, y), _ = datasets.mnist.load_data()
+(x, y), (x_test, y_test) = datasets.mnist.load_data()
 
 # 将 numpy 数组转换为 TensorFlow 的 tensor 数据类型
 # x 转换为 float32 类型的张量，表示图像数据
@@ -44,6 +45,14 @@ sample = next(train_iter)
 # sample[0] 是图像数据，形状为 [128, 28, 28]
 # sample[1] 是标签数据，形状为 [128]
 print(f"batch : {sample[0].shape}, {sample[1].shape}")
+
+# ============= Terminal output ==============
+# x: (60000, 28, 28),  <dtype: 'float32'>
+# y: (60000,),  <dtype: 'float32'>
+# x: min 0.0,   max 255.0
+# y: min 0.0,   max 9.0
+# batch : (128, 28, 28), (128,)
+# ============================================
 
 # 定义三层神经网络的权重和偏置
 # 第一层：输入层的特征数为 784（28x28 的图像展平为一维向量），输出层的神经元数为 256
@@ -81,7 +90,7 @@ lr = 1e-3
 
 # 开始训练循环
 # 训练 10 个 epoch，每个 epoch 遍历一次整个训练数据集
-for epoch in range(10):
+for epoch in range(20):
     # 遍历训练数据集
     for step, (x, y) in enumerate(train_db):
         # x 的形状为 [128, 28, 28]，y 的形状为 [128]
@@ -141,3 +150,78 @@ for epoch in range(10):
         # 每 100 步打印一次损失值
         if step % 100 == 0:
             print("epoch: ", epoch, " step:", step, "  loss: ", float(loss))
+
+# ============= TEST CODE ==============
+# test / evaluate
+# ======================================
+
+print("=" * 16, " TEST START ", "=" * 16)
+
+# step 1 获取训练数据  line:13   10000 张测试图片
+# x_test  [10k, 28, 28]
+# y_test  [10k]
+# (x, y), (x_test, y_test) = datasets.mnist.load_data()
+
+# 数据处理
+# 将测试数据转换为 TensorFlow 的张量，并进行归一化处理
+# x_test 的像素值从 [0, 255] 缩放到 [0, 1] 范围
+x_test = tf.convert_to_tensor(x_test, dtype=tf.float32) / 255
+# 将标签 y_test 转换为整型张量
+y_test = tf.convert_to_tensor(y_test, dtype=tf.int64)
+
+# 创建测试数据集
+# 使用 tf.data.Dataset 将 (x_test, y_test) 数据对切片，并按批次大小 128 进行分组
+test_db = tf.data.Dataset.from_tensor_slices((x_test, y_test)).batch(128)
+
+# 打印测试数据的形状，检查数据是否加载正确
+print(f"x_test: {x_test.shape}")  # 输出 x_test 的形状
+print(f"y_test: {y_test.shape}")  # 输出 y_test 的形状
+
+# 初始化正确预测的样本数和总样本数
+total_correct = 0  # 记录预测正确的样本数
+total_num = 0      # 记录测试样本的总数
+
+# 遍历测试数据集
+for step, (x, y) in enumerate(test_db):
+    # 将测试图像数据展平为一维向量
+    # [b, 28, 28] -> [b, 28*28]，即 [b, 784]
+    x = tf.reshape(x, [-1, 28 * 28])
+
+    # 前向传播
+    # 第一层：输入层到隐藏层 1
+    # [b, 784] -> [b, 256]
+    h1 = tf.nn.relu(x @ w1 + b1)
+    # 第二层：隐藏层 1 到隐藏层 2
+    # [b, 256] -> [b, 128]
+    h2 = tf.nn.relu(h1 @ w2 + b2)
+    # 第三层：隐藏层 2 到输出层
+    # [b, 128] -> [b, 10]
+    out = h2 @ w3 + b3
+
+    # 计算预测概率
+    # 使用 softmax 函数将输出值转换为概率分布
+    # [b, 10] -> [b, 10]，每行的值在 [0, 1] 范围内，且总和为 1
+    prob = tf.nn.softmax(out, axis=1)
+    # 获取预测类别
+    # [b, 10] -> [b]，每行取概率最大的索引作为预测类别
+    pred = tf.argmax(prob, axis=1)
+
+    # 计算预测正确的样本数
+    # 比较预测类别 pred 和真实标签 y 是否相等
+    # tf.equal 返回布尔值，tf.cast 将布尔值转换为整型（1 表示正确，0 表示错误）
+    correct = tf.cast(tf.equal(pred, y), dtype=tf.int64)
+    # 统计当前批次中预测正确的样本数
+    correct = tf.reduce_sum(correct)
+
+    # 累加正确预测的样本数和总样本数
+    total_correct += int(correct)
+    total_num += x.shape[0]
+
+# 计算测试集的准确率
+# 准确率 = 正确预测的样本数 / 总样本数
+acc = total_correct / total_num
+print("Test Acc: ", acc)  # 输出测试集的准确率
+
+
+## epoch 为 10  Test Acc: 0.572
+## epoch 为 20  Test Acc: 0.6665
