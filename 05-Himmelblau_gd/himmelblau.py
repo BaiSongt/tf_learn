@@ -30,7 +30,7 @@ def plotHfunction():
 
 
 def find_min_by_gd(x_range: list):
-    # 初始化x范围
+    # 初始化x x0 x1 初始值
     x = tf.constant(x_range, dtype=tf.float32)
 
     for step in range(100):
@@ -41,7 +41,6 @@ def find_min_by_gd(x_range: list):
         # 计算梯度
         grads = tape.gradient(y, [x])
         x -= 0.01 * grads[0]
-
         if step % 10 == 0:
             print(f"step {step}: x = {x.numpy()} y = {y.numpy()} ")
 
@@ -93,4 +92,9 @@ step 60: x = [-2.805118   3.1313124] y = 2.2737367544323206e-13
 step 70: x = [-2.805118   3.1313124] y = 2.2737367544323206e-13
 step 80: x = [-2.805118   3.1313124] y = 2.2737367544323206e-13
 step 90: x = [-2.805118   3.1313124] y = 2.2737367544323206e-13
+
+总结：1 初始值不同，对结果会有一定的影响
+     2 学习率对结果也有影响
+     3 学习率过小，收敛速度过慢
+     4 学习率过大，容易震荡，甚至不收敛
 """
