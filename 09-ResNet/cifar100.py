@@ -44,39 +44,39 @@ def main():
   resnet18_model.build(input_shape=[None, 32, 32, 3])
   resnet18_model.summary()
 
-  # # 创建Adam优化器
-  # optimizer = optimizers.Adam(learning_rate=1e-3)
+  # 创建Adam优化器
+  optimizer = optimizers.Adam(learning_rate=1e-3)
 
-  # # 训练模型
-  # for epoch in range(5):  # 训练5个epoch
-  #   for step, (x, y) in enumerate(train_db):
-  #     with tf.GradientTape() as tape:
-  #       # 前向传播
-  #       logits = resnet18_model(x)
+  # 训练模型
+  for epoch in range(5):  # 训练5个epoch
+    for step, (x, y) in enumerate(train_db):
+      with tf.GradientTape() as tape:
+        # 前向传播
+        logits = resnet18_model(x)
 
-  #       # 计算损失
-  #       y_onehot = tf.one_hot(y, depth=100)  # 将标签转换为one-hot编码
-  #       loss = tf.reduce_mean(tf.losses.categorical_crossentropy(y_onehot, logits))  # 计算交叉熵损失
+        # 计算损失
+        y_onehot = tf.one_hot(y, depth=100)  # 将标签转换为one-hot编码
+        loss = tf.reduce_mean(tf.losses.categorical_crossentropy(y_onehot, logits))  # 计算交叉熵损失
 
-  #       # 反向传播
-  #       grads = tape.gradient(loss, resnet18_model.trainable_variables)  # 计算梯度
-  #       optimizer.apply_gradients(zip(grads, resnet18_model.trainable_variables))  # 更新参数
+        # 反向传播
+        grads = tape.gradient(loss, resnet18_model.trainable_variables)  # 计算梯度
+        optimizer.apply_gradients(zip(grads, resnet18_model.trainable_variables))  # 更新参数
 
-  #       if step % 10 == 0:  # 每10步打印一次损失
-  #         print(epoch, step, 'loss: ', float(loss))
+        if step % 10 == 0:  # 每10步打印一次损失
+          print(epoch, step, 'loss: ', float(loss))
 
-  # # 测试模型
-  # total_correct, total_num = 0, 0
-  # for x, y in test_db:
-  #   logits = resnet18_model(x)
-  #   pred = tf.argmax(logits, axis=1)  # 获取预测类别
-  #   pred = tf.cast(pred, dtype=tf.int32)
-  #   correct = tf.cast(tf.equal(pred, y), dtype=tf.int32)  # 计算正确预测数
-  #   correct = tf.reduce_sum(correct)
-  #   total_correct += int(correct)  # 累加正确预测数
-  #   total_num += x.shape[0]  # 累加总样本数
-  # acc = total_correct / total_num  # 计算准确率
-  # print(epoch, 'acc: ', acc)
+  # 测试模型
+  total_correct, total_num = 0, 0
+  for x, y in test_db:
+    logits = resnet18_model(x)
+    pred = tf.argmax(logits, axis=1)  # 获取预测类别
+    pred = tf.cast(pred, dtype=tf.int32)
+    correct = tf.cast(tf.equal(pred, y), dtype=tf.int32)  # 计算正确预测数
+    correct = tf.reduce_sum(correct)
+    total_correct += int(correct)  # 累加正确预测数
+    total_num += x.shape[0]  # 累加总样本数
+  acc = total_correct / total_num  # 计算准确率
+  print(epoch, 'acc: ', acc)
 
 if __name__ == '__main__':
   main()
