@@ -74,6 +74,30 @@ class ResNet(tf.keras.Model):
     self.fc = layers.Dense(class_num,
                            kernel_regularizer=tf.keras.regularizers.l2(0.01))
 
+  def build(self, input_shape):
+        # 这个方法会在模型第一次调用时自动执行
+        # 在这里初始化所有层的权重
+        self.preprocess.build(input_shape)
+
+        # 计算每一层的输出形状
+        x = self.preprocess.compute_output_shape(input_shape)
+        self.layer1.build(x)
+        x = self.layer1.compute_output_shape(x)
+        self.layer2.build(x)
+        x = self.layer2.compute_output_shape(x)
+        self.layer3.build(x)
+        x = self.layer3.compute_output_shape(x)
+        self.layer4.build(x)
+        x = self.layer4.compute_output_shape(x)
+
+        # 构建全连接层
+        x = self.avgpool.compute_output_shape(x)
+        self.fc.build(x)
+
+        # 标记模型为已构建
+        self.built = True
+
+
   def call(self, inputs):
     x = self.preprocess(inputs)
 
