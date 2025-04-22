@@ -116,6 +116,8 @@ for epoch in range(100):
 
   for step, x in enumerate(train_db):
 
+    x = tf.reshape(x, [-1, 784])
+
     with tf.GradientTape() as tape:
       x_rec_logits , mu, log_var = model(x)
 
@@ -130,7 +132,7 @@ for epoch in range(100):
       loss = rec_loss + 1. * kl_div
 
     grads = tape.gradient(loss, model.trainable_variables)
-    optimizers.apply_gradients(zip(loss, model.trainable_variables))
+    opt.apply_gradients(zip(grads, model.trainable_variables))
 
     if step % 100 == 0:
       print(epoch, step, 'kl div:',float(kl_div), 'rec_loss', float(rec_loss))
@@ -141,15 +143,15 @@ for epoch in range(100):
     logits = model.decoder(z)
     x_hat = tf.sigmoid(logits)
     x_hat = tf.reshape(x_hat, [-1, 28, 28]).numpy() * 255.
-    x_hat = x_hat.astype(np.unit8)
+    x_hat = x_hat.astype(np.uint8)
     save_image(x_hat, '11-AutoEncoder/vae_imgs/sampled_epoch_%d.png'%epoch)
 
-    x = iter(next(test_db))
+    x = next(iter(test_db))
     x = tf.reshape(x, [-1, 784])
     x_hat_logits, _ , _ = model(x)
     x_hat = tf.sigmoid(x_hat_logits)
     x_hat = tf.reshape(x_hat, [-1, 28, 28]).numpy() * 255.
-    x_hat = x_hat.astype(np.unit8)
+    x_hat = x_hat.astype(np.uint8)
     save_image(x_hat, '11-AutoEncoder/vae_imgs/rec_epoch_%d.png'%epoch)
 
 
